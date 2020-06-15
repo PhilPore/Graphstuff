@@ -71,8 +71,9 @@ class Graph:
             while j != None:
                 print(j.name, end ='->')
                 j = j.next
-            print("X")          
-
+            print("X")  
+            
+#just a standard bfs here
 def BFS(graph,pos):
     frontier = deque([pos])
     explored = []
@@ -93,6 +94,8 @@ def BFS(graph,pos):
             explored.append(node)
             #print(explored)
     return explored
+
+#get the shortest path of nodes in a graph
 def BFSpathto(graph, start, end):
     pred = [-1 for i in range(len(graph.Adjl))]
     frontier = deque([start])
@@ -137,26 +140,76 @@ def BFSpathto(graph, start, end):
     return list(retrace)
         
 class Travers:
-    def __init__(self,sr,sc,lvl):
+    def __init__(self,sr,sc,lvl,parents =[]):
         self.sr = sr
         self.sc = sc
         self.lvl = lvl
+        self.parents = parents
     def __str__(self):
-        return("{},{}\nLevel: {}".format(self.sr,self.sc,self.lvl))
+        return("{},{}\nLevel: {}\nParent {}".format(self.sr,self.sc,self.lvl,self.parents))
          
 
 def BFSMaze(sr,sc,grph):
     dr = [-1,0,1,0]
     dc = [0,1,0,-1]
-    explored = []
-    frontier = []
+    crawl = []
     level = 0
-    walk = Travers(sr,sc,level)
+    walk = Travers(sr,sc,level,[sr,sc])
+    frontier = deque([walk])
+    explored = []
+    tracer = [[[-1,-1] for i in range(len(grph[0]))] for j in range(len(grph))]
+    tracer[sr][sc] = [0,0]
+    while(frontier):
+        node = frontier.popleft()
+        #print(node)
+        
+        if grph[node.sr][node.sc] == 'E':
+            tracer[node.sr][node.sc] = node.parents
+            print("Found with {} steps! {} {}".format(node.lvl,node.sr, node.sc))
+            crawl = [node.sr,node.sc]
+            #print(tracer[crawl[0]][crawl[1]])
+            #print(tracer[1][3])
+            break
+        if [node.sr,node.sc] not in explored:
+            for i in range(4):
+                R = node.sr+dr[i]
+                C = node.sc+dc[i]
+                if R < 0 or C < 0:
+                    continue
+                if R >= len(grph) or C >= len(grph[0]):
+                    continue
+                if grph[R][C] == '#' or [R,C] in explored:
+                    continue
+                enq = Travers(R,C,node.lvl+1,[node.sr,node.sc])
+                frontier.append(enq)
+                #print(enq)
+            
+                tracer[R][C] = [node.sr,node.sc]
+            explored.append([node.sr,node.sc])       
+    #print(crawl)
+    #print(explored)
+    #for i in range(len(tracer)):
+    #    print(tracer[i])
+    #trav = []
+    while crawl != [-1,-1]:
+        if grph[crawl[0]][crawl[1]]=='S':
+            for i in range(len(grph)):
+                print(grph[i])
+            return grph
+        if grph[crawl[0]][crawl[1]] == 'E':
+            crawl = tracer[crawl[0]][crawl[1]]
+            continue
+        grph[crawl[0]][crawl[1]] = '*'
+        crawl = tracer[crawl[0]][crawl[1]]
+   
+    
     #print(walk.sr)
+    '''
     tracer = [[[-1,-1] for i in range(len(grph[0]))] for j in range(len(grph))]
     tracer[sr][sc] = [0,0]
     for i in range(len(tracer)):
         print(tracer[i])
+    '''
     
 
 
@@ -191,4 +244,6 @@ graph.AddUnEdge(3,4)
 #print(exp)
 #print(len(graph.Adjl))
 #BFSpathto(graph, 0, 11)
-BFSMaze(0,0,dung)
+x = BFSMaze(0,0,dung)
+for i in range(len(x)):
+    print(x[i])
